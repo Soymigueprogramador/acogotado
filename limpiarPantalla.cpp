@@ -1,15 +1,22 @@
 // Funcion para limpiar la pantalla.
 
 #include <iostream>
-#include "funciones.h"
-
+#include <cstdlib> // Para system()
 using namespace std;
 
 void limpiarPantalla()
 {
-    if (system(" clear ") == -1)
+    int resultado;
+
+#ifdef _WIN32
+    resultado = system("cls");
+#else
+    resultado = system("clear");
+#endif
+
+    if (resultado != 0)
     {
-        cout << " Ocurrio un error al limpiar la pantalla " << endl;
-        cout << " Se recomienda cerrar el juego y volver abrirlo " << endl;
+        cout << "⚠️  No se pudo limpiar la pantalla correctamente." << endl;
+        cout << "   Puede continuar jugando, pero se recomienda reiniciar el juego si persiste." << endl;
     }
 }

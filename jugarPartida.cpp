@@ -1,11 +1,10 @@
-// Función para jugar partida.
+// Función para jugar partida
 
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include "funciones.h"
-#include "limpiarPantalla.cpp"
-#include "dibujar.cpp"
+#include "limpiarPantalla.h"
+#include "dibujar.h"
 
 using namespace std;
 
@@ -18,26 +17,23 @@ void jugarPartida()
         "monitor", "microfono", "televisor", "telefono", "caja", "fibron", "teclado", "pc", "collar", "manzana",
         "pantalla", "audifono", "computado", "auricular", "lapiz", "mouse", "cuaderno", "cargador", "webcam", "tijera",
         "pantufla", "bicicleta", "usb", "tv", "router", "sillon", "impresor", "bateria", "control", "ventana",
-        "botella", "espejos"
+        "botella", "espejos", "cable"
     };
 
-    srand((int)time(NULL));
+    srand(static_cast<unsigned int>(time(NULL)));
     int nA = rand() % 33; // hay 33 palabras en el array
     int vida = 6;
     bool correcto, completa;
 
-    // Inicializamos palabraCorrecta con guiones
-    for (int i = 0; i < (int)palabrasParaJugar[nA].size(); i++)
-    {
-        palabraCorrecta += "-";
-    }
+    // Inicializar palabraCorrecta con guiones
+    palabraCorrecta = string(palabrasParaJugar[nA].size(), '-');
 
     while (vida > 0)
     {
         limpiarPantalla();
 
         cout << " ================== A C O G O T A D O ================== " << endl;
-        dibujar();
+        Dibujar(vida); // ✅ PASAR VIDA
         cout << endl;
         cout << " Fallos: " << palabraIncorrecta << endl;
         cout << " Progreso: " << palabraCorrecta << endl;
@@ -45,9 +41,21 @@ void jugarPartida()
         cout << " Ingresa una letra: ";
         cin >> letraElegida;
 
+        // Convertir a minúscula
+        letraElegida = tolower(letraElegida);
+
+        // Evitar repetir letras incorrectas
+        if (palabraIncorrecta.find(letraElegida) != string::npos ||
+            palabraCorrecta.find(letraElegida) != string::npos)
+        {
+            cout << "Ya ingresaste esa letra. Intenta con otra." << endl;
+            system("pause");
+            continue;
+        }
+
         correcto = false;
 
-        for (int i = 0; i < (int)palabrasParaJugar[nA].size(); i++)
+        for (size_t i = 0; i < palabrasParaJugar[nA].size(); i++)
         {
             if (palabrasParaJugar[nA][i] == letraElegida)
             {
@@ -60,23 +68,17 @@ void jugarPartida()
         {
             vida--;
             palabraIncorrecta += letraElegida;
+            palabraIncorrecta += ' ';
         }
 
-        completa = true;
-        for (int i = 0; i < (int)palabraCorrecta.size(); i++)
-        {
-            if (palabraCorrecta[i] == '-')
-            {
-                completa = false;
-                break;
-            }
-        }
+        // Verificar si la palabra está completa
+        completa = palabraCorrecta.find('-') == string::npos;
 
         if (completa)
         {
             limpiarPantalla();
             cout << " ================== A C O G O T A D O ================== " << endl;
-            dibujar();
+            Dibujar(vida);
             cout << endl;
             cout << " Palabra: " << palabrasParaJugar[nA] << endl;
             cout << " ¡Ganaste! 🎉" << endl;
@@ -86,9 +88,10 @@ void jugarPartida()
         }
     }
 
+    // Si se queda sin vidas
     limpiarPantalla();
     cout << " ================== A C O G O T A D O ================== " << endl;
-    dibujar();
+    Dibujar(vida);
     cout << endl;
     cout << " Palabra: " << palabrasParaJugar[nA] << endl;
     cout << " Perdiste 😢" << endl;
